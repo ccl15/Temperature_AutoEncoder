@@ -1,0 +1,18 @@
+# work output
+logs/
+saved_weight/
+message.txt
+namelist
+
+# data file
+/data
+*.h5
+*.npy
+*.npz
+*.jpg
+*.png
+
+# auto generated
+Pipfile.lock
+.ipynb_checkpoints
+__pycache__
