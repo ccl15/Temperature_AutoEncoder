@@ -35,6 +35,7 @@ def train_model(
 
     best_loss = 9e10
     best_epoch = 0
+    print('Epoch start.')
     for epoch in range(1, max_epoch+1):
         # ---- train
         for data_in in datasets['train']:
@@ -58,7 +59,7 @@ def train_model(
             if best_loss >= valid_loss:
                 best_loss = valid_loss
                 best_epoch = epoch
-                print(f'Get best loss so far at epoch {epoch}! Saving the model.')
+                print(f'Get the best loss so far at epoch {epoch}! Saving the model.')
                 model.save_weights(f'{saving_path}/AE', save_format='tf')
             elif overfit_stop and (epoch - best_epoch) >= overfit_stop:
                 print('Reach the overfitting stop.')

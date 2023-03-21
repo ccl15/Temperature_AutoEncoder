@@ -22,10 +22,10 @@ def environment_setting(GPU, GPU_limit):
             [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=GPU_limit)]
         )
 
-def create_model(model_name, input_size, hidden_size):
+def create_model(model_name, model_setting):
     print(f'Create model {model_name}')
     model_class = importlib.import_module(f'Models.autoencoder.{model_name}')
-    return model_class.Model(input_size, hidden_size)
+    return model_class.Model(**model_setting)
     
 
 def main(exp_path, omit_completed):
@@ -49,7 +49,7 @@ def main(exp_path, omit_completed):
         
         # load data and create model. 
         datasets = get_tf_datasets(**sub_exp_settings['data'])
-        model = create_model(**sub_exp_settings['model'])
+        model = create_model(sub_exp_settings['model_name'], sub_exp_settings['model_setting'])
         
         # training.
         train_model(

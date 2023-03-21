@@ -22,16 +22,16 @@ class Model(tf.keras.Model):
                 layers.Reshape(target_shape=(18, filters*2)),
                 layers.Conv1DTranspose(filters, kernel_size=3, strides=2, padding='same', activation='relu'),
                 layers.BatchNormalization(),
-                layers.Conv1DTranspose(1 , kernel_size=3, strides=1, padding='same', activation='relu'),
-                layers.BatchNormalization(),
-                tf.keras.layers.Conv1D(1, kernel_size=3, strides=1, padding='same'),
+                layers.Conv1DTranspose(1 , kernel_size=3, strides=2, padding='same'),
             ]
 
 
-    def __call__(self, x, bn_flag=False):
+    def __call__(self, x, training=False):
+        x = tf.expand_dims(x, -1)
         for coder in [self.encoder, self.decoder]:
             for layer in coder:
                 if isinstance(layer, layers.BatchNormalization):
-                    x = layer(x, training=bn_flag)
+                    x = layer(x, training=training)
                 else:
                     x = layer(x)
+        return x
