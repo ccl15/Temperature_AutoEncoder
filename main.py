@@ -25,8 +25,10 @@ def environment_setting(GPU, GPU_limit):
 def create_model(model_name, model_setting):
     print(f'Create model {model_name}')
     model_class = importlib.import_module(f'Models.autoencoder.{model_name}')
-    return model_class.Model(**model_setting)
-    
+    model =  model_class.Model(model_setting['filters'])
+    if 'weight_path' in  model_setting:
+        model.load_weights(model_setting['weight_path']).expect_partial()
+    return model
 
 def main(exp_path, omit_completed):
     # parse yaml to get experiment settings 

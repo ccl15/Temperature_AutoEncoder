@@ -8,7 +8,7 @@ class Model(tf.keras.Model):
     def __init__(self, filters):
         super().__init__()
         self.encoder = [
-                layers.InputLayer(input_shape=(72, 1)),
+                layers.InputLayer(),
                 layers.Conv1D(filters  , kernel_size=3, strides=2, activation='relu', padding='same'),
                 layers.BatchNormalization(),
                 layers.Conv1D(filters*2, kernel_size=3, strides=2, activation='relu', padding='same'),

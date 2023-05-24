@@ -1,6 +1,7 @@
 # work output
 logs/
 saved_weight/
+output/AE_*
 message.txt
 namelist
 

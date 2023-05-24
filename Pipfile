@@ -8,6 +8,8 @@ tensorflow = "*"
 tensorflow-addons = "*"
 numpy = "*"
 matplotlib = "*"
+scipy = "*"
+pandas = "*"
 
 [dev-packages]
 pyyaml = "*"
