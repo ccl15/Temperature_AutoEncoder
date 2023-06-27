@@ -20,7 +20,7 @@ def main(exp_path, yr, phaselist=['good', 'bad'], only_this_sub=''):
         # information
         exp_name = sub_exp_settings['experiment_name']
         sub_exp_name = sub_exp_settings['sub_exp_name']
-        sta_list = [sub_exp_name[3:]] #!!!! 3
+        sta_list = [sub_exp_name[3:9]] #!!!! 3
 
         # load model
         model_save_path = f'Models/saved_weight/{exp_name}/{sub_exp_name}/AE'
@@ -30,7 +30,7 @@ def main(exp_path, yr, phaselist=['good', 'bad'], only_this_sub=''):
         
         # load test data
         for station in sta_list:
-            data_file = f'data/station_ds/{station}_H72_{yr}.h5'
+            data_file = f'data/2ds_C0/{station}_H24_{yr}.h5'
             with h5py.File(data_file, 'r') as f:
                 for phase in phaselist:
                     test_data = f[phase]['temp'][:]
@@ -49,6 +49,6 @@ if __name__ == '__main__':
 
     # main(args.exp_path, args.sub_exp, args.station)
     #sta_list =[466880]
-    main('experiments/AE_2_s.yml', '20t22',
-          only_this_sub='AE_467270') 
+    main('experiments/AE_2_s24.yml', '18t21', ['good'])
+       #   only_this_sub='AE_467270') 
 #         sta_list=sta_list)
