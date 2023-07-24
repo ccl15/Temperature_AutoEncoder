@@ -6,17 +6,16 @@ import pandas as pd
 #%% load data ------------------------------------
 def _load_staion_pass(sid, vers):
     exp_dir = 'AE_station_24'
-    #yr = '20t22' if sid == '467270' else '18t21'
-    yr = '18t21'
+    yr = '18t22'
     # load predict
     if vers == 0:
-        pred_path = f'{exp_dir}/AE_{sid}/{sid}_18t21_good.npy'
+        pred_path = f'{exp_dir}/AE_{sid}/{sid}_good.npy'
     elif vers == 1:
-        pred_path = f'{exp_dir}/AE_{sid}/{sid}_18t21_good_1.npy'
+        pred_path = f'{exp_dir}/AE_{sid}/{sid}_good_1.npy'
         
     pred_g = np.load(pred_path)
     # load truth
-    obs_path = f'../data/2ds_46/{sid}_H24_{yr}.h5'  #!!!
+    obs_path = f'../data/2ds/{sid}_H24_{yr}.h5'  #!!!
     with h5py.File(obs_path, 'r') as f:
         obs_g = f['good/temp'][:]
         if len(pred_g) != len(obs_g):
@@ -24,12 +23,12 @@ def _load_staion_pass(sid, vers):
     return pred_g, obs_g
 
 def _load_staion_both(sid):
-    pred_path = f'{exp_dir}/{sid}_18t21_good.npy'
+    pred_path = f'{exp_dir}/{sid}_good.npy'
     pred_g = np.load(pred_path)
-    pred_path = f'{exp_dir}/{sid}_18t21_bad.npy'
+    pred_path = f'{exp_dir}/{sid}_bad.npy'
     pred_b = np.load(pred_path)
     
-    obs_path = f'../data/station_ds/{sid}_H24_18t21.h5'
+    obs_path = f'../data/2ds/{sid}_H24_18t22.h5'
     with h5py.File(obs_path, 'r') as f:
         obs_g = f['good/temp'][:]
         obs_b = f['bad/temp'][:]
@@ -46,9 +45,9 @@ def _get_threshold(sid, n, vers):
 
 #%% output -----------------------
 def create_all_staion_th_file():    
-    with open(f'threshold/threshold_h24_46_3.txt', 'w') as fout:  # !!!!!
+    with open(f'threshold/th_24h3.txt', 'w') as fout:  # !!!!!
         fout.write('ID      mean   std    th\n')
-        with open('../data/list_46.txt', 'r') as fin:  #!!!!!!!
+        with open('../data/list_all.txt', 'r') as fin:  #!!!!!!!
             # skip first line of fin
             #fin.readline()
             # calculate threshold for each station
@@ -57,13 +56,12 @@ def create_all_staion_th_file():
                 mean, std, th = _get_threshold(sid, n=3, vers=0)
                 fout.write(f'{sid} {mean:5.3f} {std:5.3f} {th:5.3f}\n')
 
-create_all_staion_th_file()
 
 #%% compaire new threshold with old threshold
 def compaire_new_old_th():
     # load old threshold
     th_list = {}
-    with open('threshold/threshold_h24_C0_3.txt', 'r') as f:
+    with open('threshold/th_24h3.txt', 'r') as f:
         next(f) # skip first line
         for l in f:
             sid = l.split()[0]
@@ -71,25 +69,29 @@ def compaire_new_old_th():
 
 
     # calculate new threshold
-    with open(f'../data/list_C0_rerun.txt', 'r') as f:
+    with open(f'../data/list_re.txt', 'r') as f:
         for l in f:
             sid = l.strip()
             mean, std, th = _get_threshold(sid, n=3, vers=1)
-            print(th_list[sid])
-            print(f'{sid} {mean:5.3f} {std:5.3f} {th:5.3f}')
-            print('\n')
+            print('old',th_list[sid])
+            print(f'new {sid} {mean:5.3f} {std:5.3f} {th:5.3f}\n')
+
+
+def checki_all_threshold(): 
+    file_name = 'threshold/th_24h3.txt'
+    df = pd.read_csv(file_name,  sep='\s+')
+
+    print(df[df['mean']>0.2])
+    print(df[df['std']>0.2])
+    print(df[df['th']> 0.6])
+
+#%% ---------------------------------------
 
 #compaire_new_old_th()
 
-#%% ---------------------------------------
-# check all threshold 
-'''
-file_name = 'threshold/threshold_h24_3.txt'
-df = pd.read_csv(file_name,  sep='\s+')
+#create_all_staion_th_file()
 
-print(df[df['mean']>0.3])
-print(df[df['th']> 0.6])
-'''
+# checki_all_threshold()
 #%% -------------------------------------------------------------------------------------
 
 def one_station_th_and_noPass(sid, n):
@@ -117,7 +119,8 @@ def one_station_th_and_noPass(sid, n):
         fout.write(f'recall: {recall}\n')
         print(sid, recall)
                 
-
-#for station in stations:
-#    exp_dir = f'AE_station_24/AE_{station}'
-#    one_station_th_and_noPass(station, n=3)
+with open(f'../data/list_46.txt', 'r') as f:
+    for l in f:
+        station = l[:6]
+        exp_dir = f'AE_station_24/AE_{station}'
+        one_station_th_and_noPass(station, n=3)

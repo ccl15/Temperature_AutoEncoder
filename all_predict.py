@@ -32,14 +32,14 @@ def main(exp_path, name_list, phaselist=['good', 'bad']):
         Path(save_folder).mkdir(parents=True, exist_ok=True)
 
         # load test data
-        data_file = f'data/2ds_46/{sid}_H24_18t21.h5'   #!!!!!
+        data_file = f'data/2ds/{sid}_H24_18t22.h5'   #!!!!!
         with h5py.File(data_file, 'r') as f:
             for phase in phaselist:
                 test_data = f[phase]['temp'][:]
                 predict = np.squeeze(model(test_data))
-                np.save(f'{save_folder}/{sid}_18t21_{phase}.npy', predict)  #!!!!
+                np.save(f'{save_folder}/{sid}_{phase}.npy', predict)  #!!!!
         print(sid, 'saved')
 
 
 if __name__ == '__main__':
-    main('experiments/AE_2_s24.yml', 'data/list_46_re.txt', ['good'])
+    main('experiments/AE_2_s24.yml', 'data/list_46.txt', ['good'])

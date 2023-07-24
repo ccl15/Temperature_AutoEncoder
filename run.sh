@@ -3,7 +3,7 @@
 # Read the namelist file line by line
 input_file='experiments/AE_2_s24.yml.bk'
 output_file='experiments/AE_2_s24.yml'
-name_file='data/list_46_re.txt'
+name_file='data/list_re.txt'
 
 # loop by name file. skip the first line.
 #tail -n +2 "$name_file" | while IFS= read -r line; do
