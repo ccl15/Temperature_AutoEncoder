@@ -30,7 +30,7 @@ def main(exp_path, yr, phaselist=['good', 'bad'], only_this_sub=''):
         
         # load test data
         for station in sta_list:
-            data_file = f'data/2ds_C0/{station}_H24_{yr}.h5'
+            data_file = f'data/2ds_46/{station}_H24_{yr}.h5'
             with h5py.File(data_file, 'r') as f:
                 for phase in phaselist:
                     test_data = f[phase]['temp'][:]
@@ -48,7 +48,6 @@ if __name__ == '__main__':
     # args = parser.parse_args()
 
     # main(args.exp_path, args.sub_exp, args.station)
-    #sta_list =[466880]
-    main('experiments/AE_2_s24.yml', '18t21', ['good'])
+    main('experiments/AE_2_s24.yml', '18t22', ['good'])
        #   only_this_sub='AE_467270') 
-#         sta_list=sta_list)
+         sta_list=sta_list)

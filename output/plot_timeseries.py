@@ -29,17 +29,16 @@ def plot_temp(T_obs, T_pred, t0):
     plt.close()
 
 # setting
-subexp_dir = 'AE_station/'
-# stations = [466880, 466900, 466910, 466920, 466930, 466940, 467050, 467060, 467080, 467571]
-stations = [467270]
-yr='20t22' #'18t21'
+subexp_dir = 'AE_station_24'
+stations = [466880, 466900, 466910, 466920, 466930, 466940, 467050, 467060, 467080, 467571]
+yr='18t22'
 
 for station in stations:
     #load data
-    pred_path = f'{subexp_dir}/AE_{station}/{station}_{yr}_bad.npy'  #!!!
+    pred_path = f'{subexp_dir}/AE_{station}/{station}_bad.npy'  #!!!
     pred_Ts = np.load(pred_path)
     
-    obs_path = f'../data/station_ds/{station}_H72_{yr}.h5' #!!!
+    obs_path = f'../data/2ds/{station}_H24_{yr}.h5' #!!!
     with h5py.File(obs_path, 'r') as f:
         obs_Ts = f['bad/temp'][:]
         obs_ts = f['bad/time'][:]
