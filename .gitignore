@@ -8,6 +8,7 @@ operate/model
 
 # data file
 /data
+operate/model
 *.h5
 *.npy
 *.npz
