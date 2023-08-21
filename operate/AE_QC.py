@@ -4,7 +4,7 @@ import numpy as np
 from datetime import datetime, timedelta
 from pathlib import Path
 
-
+# data -----------------------------
 def _get_threshold(sid):
     th_file = 'th_24h3.txt'
     with open(th_file, 'r') as f:
@@ -16,6 +16,33 @@ def _get_threshold(sid):
     print(f'{sid} not found in threshold file.')
     return None
 
+
+def _missing_add(temp24):
+    miss = -90
+    
+    if temp24[0] < miss:
+        if temp24[1] > miss:
+            temp24[0] = temp24[1]
+        elif temp24[2] > miss:
+            temp24[0], temp24[1] = temp24[2], temp24[2]
+        else:
+            return None    
+
+    def interpolate(start, end, n):
+        return [start + (i+1)*(end - start)/(n+1) for i in range(n)]
+    i = 1
+    while i < 23:
+        if temp24[i] < miss:
+            if temp24[i+1] > miss:
+                temp24[i:i+1] = interpolate(temp24[i-1], temp24[i+1], 1)
+                i +=1 
+            elif temp24[i+2] > miss:
+                temp24[i:i+2] = interpolate(temp24[i-1], temp24[i+2], 2)
+                i +=2
+            else:
+                return None
+        i += 1
+    return temp24
 
 def _load_24hr_temp(sid, time_check):
     temp24 = []
@@ -38,15 +65,16 @@ def _load_24hr_temp(sid, time_check):
                 print(f'Station {sid} not in file {fn.name}.')
                 return None
         t1 += timedelta(hours=1)
-    return np.array(temp24)[np.newaxis, ...]
+    temp24 = _missing_add(temp24)
+    return np.array(temp24)
 
-
+# model ---------------------------------
 def _create_model(model_name, weight_path):
     model = importlib.import_module(model_name).Model()
     model.load_weights(weight_path).expect_partial()
     return model
 
-
+# main ------------------------------------
 def AE_check(sid, t24):
     obs = _load_24hr_temp(sid, t24)
     threshold = _get_threshold(sid)
@@ -54,16 +82,17 @@ def AE_check(sid, t24):
     if (obs is not None) and (threshold is not None):
         # create model and predict
         model = _create_model('AE_2_0', f'./model/{sid}/AE')
-        pred = np.squeeze(model(obs))
+        pred = np.squeeze(model(obs[np.newaxis, ...]))
 
         # calculate last 3 hours error
         mae = np.mean(np.abs(pred[-3:] - np.squeeze(obs)[-3:]))
 
         # check threshold
-        result = 'P' if mae <= threshold else 'A'
+        result = 'P' if mae <= threshold else 'W'
         print(f'AE success. {sid} {t24} MAE:{mae:.2f}, th:{threshold:.2f}, result: {result}')
     else:
         print('AE fail')
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
