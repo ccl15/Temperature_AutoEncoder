@@ -33,7 +33,10 @@ def _load_staion_both(sid):
         obs_g = f['good/temp'][:]
         obs_b = f['bad/temp'][:]
         time_b = f['bad/time'][:]
-    return pred_g, obs_g, pred_b, obs_b, time_b
+        code_b = f['bad/code'][:]
+    # get index of code_b ==1 or code >10
+    idx = np.where((code_b == 1) | (code_b > 10))
+    return pred_g, obs_g, pred_b[idx], obs_b[idx], time_b[idx], code_b[idx]
 
 def _get_threshold(sid, n, vers):
     pred_g, obs_g = _load_staion_pass(sid, vers)
@@ -77,7 +80,7 @@ def compaire_new_old_th():
             print(f'new {sid} {mean:5.3f} {std:5.3f} {th:5.3f}\n')
 
 
-def checki_all_threshold(): 
+def check_all_threshold(): 
     file_name = 'threshold/th_24h3.txt'
     df = pd.read_csv(file_name,  sep='\s+')
 
@@ -91,12 +94,12 @@ def checki_all_threshold():
 
 #create_all_staion_th_file()
 
-# checki_all_threshold()
+#check_all_threshold()
 #%% -------------------------------------------------------------------------------------
 
 def one_station_th_and_noPass(sid, n):
     with open(f'AE_station_24/threshold/th{n}_3std_{sid}.txt', 'w') as fout:
-        pred_g, obs_g, pred_b, obs_b, time_b = _load_staion_both(sid)
+        pred_g, obs_g, pred_b, obs_b, time_b, code_b = _load_staion_both(sid)
         errors = [np.mean(abs(yt[-n:]-yp[-n:])) for yt, yp in zip(obs_g, pred_g)]
         # get th
         mean = np.mean(errors)
@@ -108,19 +111,26 @@ def one_station_th_and_noPass(sid, n):
         fout.write('ID      mean   std    th cases\n')
         fout.write(f'{sid} {mean:5.3f} {std:5.3f} {th:5.3f} {case}\n')
         fout.write('-------------------------------------\n')
+        fout.write('time code error result\n')
         num = 0 
         for i in range(case):
-            e = np.mean(abs(pred_b[i][-n:]-obs_b[i][-n:]))
-            if e > th:
-                ts = time_b[i].decode('utf-8')
-                fout.write(f'{ts} {e:5.3f}\n')
+            e = np.mean(abs(pred_b[i][-n:]-obs_b[i][-n:]))                
+            if  e > th:
+                code = 'W' 
                 num += 1
+            else:
+                code = 'P'
+            ts = time_b[i].decode('utf-8')
+            fout.write(f'{ts} {code_b[i]} {e:5.3f} {code}\n')
+           
         recall = f'{1-num/case:4.2f}'
         fout.write(f'recall: {recall}\n')
         print(sid, recall)
-                
-with open(f'../data/list_46.txt', 'r') as f:
+
+
+with open(f'../data/list_all.txt', 'r') as f:
     for l in f:
         station = l[:6]
         exp_dir = f'AE_station_24/AE_{station}'
         one_station_th_and_noPass(station, n=3)
+    

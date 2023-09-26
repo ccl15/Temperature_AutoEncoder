@@ -1,26 +1,27 @@
 import tensorflow as tf
 from tensorflow.keras import layers
+
 '''
-This is convolutional autoencoder
-'''        
+convolution kernel =3 , no stride , dilation
+Add max pooling 
+'''
+
 
 class Model(tf.keras.Model):
     def __init__(self, filters):
         super().__init__()
         self.encoder = [
-                layers.InputLayer(input_shape=(32, 1)),
-                layers.Conv1D(filters  , kernel_size=3, strides=2, activation='relu', padding='same'),
+                layers.InputLayer(),
+                layers.Conv1D(filters  , kernel_size=3, dilation_rate=3,  activation='relu', padding='same'),
+                layers.MaxPool1D(pool_size=2),
                 layers.BatchNormalization(),
-                layers.Conv1D(2*filters, kernel_size=3, strides=2, activation='relu', padding='same'),
+                layers.Conv1D(filters*2, kernel_size=3, dilation_rate=3, activation='relu', padding='same'),
+                layers.MaxPool1D(pool_size=2),
                 layers.BatchNormalization(),
-                layers.Flatten(),
-                layers.Dense(4*filters),
             ]
         
         self.decoder = [
-                layers.Dense(units=16*filters, activation='relu'),
-                layers.Reshape(target_shape=(8, filters*2)),
-                layers.Conv1DTranspose(filters, kernel_size=3, strides=2, padding='same', activation='relu'),
+                layers.Conv1DTranspose(filters, kernel_size=3, strides=2, activation='relu', padding='same'),
                 layers.BatchNormalization(),
                 layers.Conv1DTranspose(1 , kernel_size=3, strides=2, padding='same'),
             ]
@@ -35,3 +36,4 @@ class Model(tf.keras.Model):
                 else:
                     x = layer(x)
         return x
+

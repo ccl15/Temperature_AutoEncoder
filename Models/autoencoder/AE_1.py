@@ -12,16 +12,13 @@ class HiddenLayer(layers.Layer):
 class Model(tf.keras.Model):
     def __init__(self, input_size, hidden_size):
         super().__init__()
-        self.input_layer = layers.InputLayer(input_size)
+        self.input_layer = layers.InputLayer((input_size,))
         self.hidden_layers = [HiddenLayer(filters) for filters in hidden_size]
         self.output_layer = layers.Dense(input_size)
             
-    def autoencoder(self, x, training):
+    def __call__(self, x, training=False):
         x = self.input_layer(x)
         for hidden_layer in self.hidden_layers:
             x = hidden_layer(x, training=training)
         x = self.output_layer(x)
         return x
-
-    def __call__(self, input_data, training=False):
-        return self.autoencoder(input_data, training)

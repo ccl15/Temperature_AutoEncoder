@@ -42,4 +42,4 @@ def main(exp_path, name_list, phaselist=['good', 'bad']):
 
 
 if __name__ == '__main__':
-    main('experiments/AE_2_s24.yml', 'data/list_46.txt', ['good'])
+    main('experiments/AE_2_s24.yml', 'data/list_re.txt', ['good'])

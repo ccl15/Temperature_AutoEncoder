@@ -2,7 +2,7 @@ import argparse, os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 from pathlib import Path
 from modules.ymal_reader import parse_exp_settings
-from modules.training_helper import get_tf_datasets
+from modules.training_helper import get_tfr_datasets
 from modules.model_trainer import train_model
 import tensorflow as tf
 import importlib 
@@ -26,6 +26,7 @@ def create_model(model_name, model_setting):
     print(f'Create model {model_name}')
     model_class = importlib.import_module(f'Models.autoencoder.{model_name}')
     model =  model_class.Model(model_setting['filters'])
+
     if 'weight_path' in  model_setting:
         model.load_weights(model_setting['weight_path']).expect_partial()
     return model
@@ -50,7 +51,7 @@ def main(exp_path, omit_completed):
         Path(model_save_path).mkdir(parents=True, exist_ok=True)
         
         # load data and create model. 
-        datasets = get_tf_datasets(**sub_exp_settings['data'])
+        datasets = get_tfr_datasets(**sub_exp_settings['data'])
         model = create_model(sub_exp_settings['model_name'], sub_exp_settings['model_setting'])
         
         # training.
