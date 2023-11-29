@@ -11,7 +11,7 @@ def create_model(model_name, model_setting, weight_path):
     return model
     
 
-def main(exp_path, name_list, phaselist=['good', 'bad']):
+def main(exp_path, name_list):
     os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
     os.environ["CUDA_VISIBLE_DEVICES"] = ''
     
@@ -19,27 +19,26 @@ def main(exp_path, name_list, phaselist=['good', 'bad']):
     exp_name = exp_settings['experiment_name']
     model_name = exp_settings['model_name']
     model_setting = exp_settings['model_setting']
+    
+    save_folder = f'output/{exp_name}/'  #!!!!!!!
+    Path(save_folder).mkdir(parents=True, exist_ok=True)
 
     with open(name_list, 'r') as f:
-        sids = [l.strip() for l in f]
+        for l in f:
+            sid = l.strip().split()[0]
 
-    for sid in sids:
-        # load model
-        weight_path = f'Models/saved_weight/{exp_name}/AE_{sid}/AE'   #!!!!!!
-        model = create_model(model_name, model_setting, weight_path) 
-        
-        save_folder = f'output/{exp_name}/AE_{sid}'  #!!!!!!!
-        Path(save_folder).mkdir(parents=True, exist_ok=True)
-
-        # load test data
-        data_file = f'data/2ds/{sid}_H24_18t22.h5'   #!!!!!
-        with h5py.File(data_file, 'r') as f:
-            for phase in phaselist:
-                test_data = f[phase]['temp'][:]
-                predict = np.squeeze(model(test_data))
-                np.save(f'{save_folder}/{sid}_{phase}.npy', predict)  #!!!!
-        print(sid, 'saved')
+            # load model
+            weight_path = f'Models/saved_weight/{exp_name}/M221_{sid}_full/AE'   #!!!!!!
+            model = create_model(model_name, model_setting, weight_path) 
+            
+            # load test data
+            data_file = f'data/7processed/{sid}.npz'   #!!!!!
+            ds = np.load(data_file)
+            test_data = ds['temp']
+            predict = np.squeeze(model(test_data))
+            np.save(f'{save_folder}/{sid}_1.npy', predict)  #!!!!
+            print(sid, 'saved')
 
 
 if __name__ == '__main__':
-    main('experiments/AE_2_s24.yml', 'data/list_re.txt', ['good'])
+    main('experiments/minute_bk.yml', 'data/list_re.txt')

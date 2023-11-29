@@ -1,0 +1,18 @@
+experiment_name: AE_station_24 
+
+template:
+  sub_exp_name: AE_sid_1
+  model_name: AE_2_0
+  model_setting:
+    weight_path: Models/saved_weight/AE_station_24/AE_466920/AE
+    filters: 12
+  data:
+    data_file: data/2ds/sid_H24_18t22.h5
+    batch_size: 200
+    shuffle_buffer: 30000
+  train_setting:
+    evaluate_freq: 5
+    max_epoch: 500
+    loss_name: MSE
+    L_rate: 1e-4
+    overfit_stop: 100

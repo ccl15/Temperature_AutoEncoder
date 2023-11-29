@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Read the namelist file line by line
-input_file='experiments/AE_2_s24.yml.bk'
-output_file='experiments/AE_2_s24.yml'
+input_file='experiments/minute_bk.yml'
+output_file='experiments/minute_auto.yml'
 name_file='data/list_re.txt'
 
 # loop by name file. skip the first line.
