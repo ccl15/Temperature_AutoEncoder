@@ -50,7 +50,7 @@ def train_model(
         if (epoch) % evaluate_freq == 0:
             print(f'Completed epoch {epoch}. Do evaluation.')
             
-            for phase in ['train', 'valid']:
+            for phase in ['valid']:
                 loss  = evaluate_loss(model, datasets[phase], loss_function)
                 with summary_writer.as_default():
                     tf.summary.scalar(f'[{phase}]: {loss_name}', loss, step=epoch)
