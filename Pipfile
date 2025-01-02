@@ -4,17 +4,16 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-tensorflow = "*"
+tensorflow = "==2.13.0"
 tensorflow-addons = "*"
 numpy = "*"
-matplotlib = "*"
-scipy = "*"
 pandas = "*"
+matplotlib = "*"
+tqdm = "*"
+openpyxl = "*"
 
 [dev-packages]
 pyyaml = "*"
-spyder = "*"
-scikit-learn = "*"
 
 [requires]
 python_version = "3.10"

@@ -1,0 +1,18 @@
+experiment_name: AE_min2223
+
+template:
+  sub_exp_name: M221_sid
+  model_name: AE_2_2_1
+  model_setting:
+    weight_path: Models/saved_weight/AE_min2223/M221_sid/AE
+    filters: 32
+  data:
+    data_file: data/min2223_yr/sid_2022.tfr
+    batch_size: 1000
+    shuffle_buffer: 100000
+  train_setting:
+    evaluate_freq: 3
+    max_epoch: 500
+    loss_name: MSE
+    L_rate: 1e-5
+    overfit_stop: 50

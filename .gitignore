@@ -5,6 +5,7 @@ output/AE_*
 message.txt
 namelist
 operate/model
+output/threshold/min_noPass
 
 # data file
 /data

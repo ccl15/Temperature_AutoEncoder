@@ -17,7 +17,7 @@ def parse_exp_settings(experiment_path, only_this_sub_exp=''):
                 returned = deep_update(source.get(key, {}), value)
                 source[key] = returned
             else:
-                source[key] = overrides[key]
+                source[key] = value
         return source
     
     exp_list = [template_exp_settings]
