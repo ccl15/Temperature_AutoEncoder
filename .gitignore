@@ -1,11 +1,13 @@
 # work output
 logs/
-saved_weight/
+AutoEncoder/Models/saved*
 output/AE_*
 message.txt
 namelist
-operate/model
+operate_*/
 output/threshold/min_noPass
+QC_*
+
 
 # data file
 /data

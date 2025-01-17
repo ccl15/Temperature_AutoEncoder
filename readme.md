@@ -3,6 +3,7 @@ Temperature anomaly detection in time series.
 
 
 ## Train Model
+Go to AutoEncoder folder
 ### Train sub-experiments by ymal
 ```
 python main.py <experiment_path> -GPU <GPU_number>

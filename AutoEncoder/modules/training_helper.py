@@ -2,23 +2,15 @@ import h5py
 import tensorflow as tf
 import random
 
-def evaluate_loss(model, dataset, loss_func):
-    avg_loss = tf.keras.metrics.Mean(dtype=tf.float32)
-    for batch_index, data_in in dataset.enumerate():
-        data_out = model(data_in, training=False)
-        loss = loss_func(data_in, data_out)
-        avg_loss.update_state(loss)
-    return avg_loss.result()
-
     
-def get_tf_datasets(data_file, batch_size, shuffle_buffer):
+def get_h5py_datasets(data_file, batch_size, shuffle_buffer):
     with h5py.File(data_file, 'r') as f:
-        data = f['good/temp'][:]
-    n_train = int(len(data)*0.75)
+        data = f['good/data'][:].astype('float32')
     
-    # Shuffle and create dataset
+    # Shuffle and counting
     random.shuffle(data)
     data = tf.data.Dataset.from_tensor_slices(data)
+    n_train = int(len(data)*0.75)
 
     # Split into train/valid
     dataset = {
@@ -27,7 +19,7 @@ def get_tf_datasets(data_file, batch_size, shuffle_buffer):
         }
     return dataset
 
-def get_tfr_datasets(data_file, shuffle_buffer, batch_size):
+def get_tfr_datasets(data_file, shuffle_buffer, batch_size, input_shp=None):
     # load data
     def _parse_example(example_string):
         feature_description = {
@@ -35,16 +27,21 @@ def get_tfr_datasets(data_file, shuffle_buffer, batch_size):
         }
         features = tf.io.parse_single_example(example_string, feature_description)
 
-        temp = tf.io.decode_raw(features['temp'], tf.float32)
+        if input_shp:
+            temp = tf.reshape(tf.io.decode_raw(features['temp'], tf.float32), input_shp)
+        else:
+            temp = tf.io.decode_raw(features['temp'], tf.float32)
         return temp
 
     raw_dataset = tf.data.TFRecordDataset(data_file)
     dataset = raw_dataset.map(_parse_example)
 
-    # split to train/valid
+    # Shuffle and counting
     dataset = dataset.shuffle(buffer_size=shuffle_buffer)
     count = sum(1 for _ in dataset)
     train_size = int(count*0.7)
+
+    # split to train/valid
     ds_for_model ={
         'train' : dataset.take(train_size).batch(batch_size).prefetch(tf.data.AUTOTUNE),
         'valid' : dataset.skip(train_size).batch(batch_size).prefetch(tf.data.AUTOTUNE)

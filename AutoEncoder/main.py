@@ -2,7 +2,7 @@ import argparse, os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 from pathlib import Path
 from modules.ymal_reader import parse_exp_settings
-from modules.training_helper import get_tfr_datasets
+from modules.training_helper import get_h5py_datasets
 from modules.model_trainer import train_model
 import tensorflow as tf
 import importlib 
@@ -22,14 +22,17 @@ def environment_setting(GPU, GPU_limit):
             [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=GPU_limit)]
         )
 
-def create_model(model_name, model_setting):
-    print(f'Create model {model_name}')
-    model_class = importlib.import_module(f'Models.autoencoder.{model_name}')
-    model =  model_class.Model(model_setting['filters'])
+def create_model(model_name, model_settng, load_model=None):
+    if load_model:
+        print(f'Load model {load_model}')
+        model = tf.saved_model.load(load_model)
+        return model
+    else:
+        print(f'Create new model {model_name}')
+        model_class = importlib.import_module(f'Models.autoencoder.{model_name}')
+        model =  model_class.Model(model_settng['filters'])
+        return model
 
-    if 'weight_path' in  model_setting:
-        model.load_weights(model_setting['weight_path']).expect_partial()
-    return model
 
 def main(exp_path, omit_completed):
     # parse yaml to get experiment settings 
@@ -47,11 +50,11 @@ def main(exp_path, omit_completed):
 
         # log and model saved path setting
         summary_writer = tf.summary.create_file_writer(log_path)
-        model_save_path = f'Models/saved_weight/{exp_name}/{sub_exp_name}'
+        model_save_path = f'Models/saved/{exp_name}/{sub_exp_name}'
         Path(model_save_path).mkdir(parents=True, exist_ok=True)
         
         # load data and create model. 
-        datasets = get_tfr_datasets(**sub_exp_settings['data'])
+        datasets = get_h5py_datasets(**sub_exp_settings['data'])
         model = create_model(sub_exp_settings['model_name'], sub_exp_settings['model_setting'])
         
         # training.

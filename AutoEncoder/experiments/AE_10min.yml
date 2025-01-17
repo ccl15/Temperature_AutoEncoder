@@ -1,0 +1,20 @@
+experiment_name: AE_10min
+# test of temptature and RH 
+
+template:
+  sub_exp_name: TR_f32_C0F9S0
+  model_name: AE_3_0
+  model_setting:
+    filters: 12
+  data:
+    data_file: ../data/9_input_10min/y4_C0F9S0.h5
+    batch_size: 200
+    shuffle_buffer: 30000
+  train_setting:
+    evaluate_freq: 5
+    max_epoch: 500
+    loss_name: MSE
+    L_rate: 1e-3
+    overfit_stop: 100
+
+#sub_experiments:

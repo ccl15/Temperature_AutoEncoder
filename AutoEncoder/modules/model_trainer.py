@@ -1,6 +1,5 @@
 import tensorflow as tf
 from collections import defaultdict
-from modules.training_helper import evaluate_loss
 
 def train_model(
     model,
@@ -23,15 +22,23 @@ def train_model(
     avg_losses = defaultdict(lambda: tf.keras.metrics.Mean(dtype=tf.float32))
 
     @tf.function
-    def train_step(data_in, training=True):
+    def train_step(data_in):
         with tf.GradientTape() as tape:
-            data_out = model(data_in, training=training)
+            data_out = model(data_in)
             pred_loss = loss_function(data_in, data_out)
         gradients = tape.gradient(pred_loss, model.trainable_variables)
         optimizer.apply_gradients(zip(gradients, model.trainable_variables))
         avg_losses[f'{loss_name}'].update_state(pred_loss)
         return
     
+    def evaluate_step(dataset):
+        eva_loss = tf.keras.metrics.Mean(dtype=tf.float32)
+        for data_in in dataset:
+            data_out = model(data_in)
+            loss = loss_function(data_in, data_out)
+            eva_loss.update_state(loss)
+        return eva_loss.result()
+
 
     best_loss = 9e10
     best_epoch = 0
@@ -39,19 +46,19 @@ def train_model(
     for epoch in range(1, max_epoch+1):
         # ---- train
         for data_in in datasets['train']:
-            train_step(data_in, training=True)
+            train_step(data_in)
 
         for loss_name, avg_loss in avg_losses.items():
             with summary_writer.as_default():
                 tf.summary.scalar(loss_name, avg_loss.result(), step=epoch)
-            avg_loss.reset_states()
+            avg_loss.reset_state()
 
         # ---- evaluate
         if (epoch) % evaluate_freq == 0:
             print(f'Completed epoch {epoch}. Do evaluation.')
             
-            for phase in ['valid']:
-                loss  = evaluate_loss(model, datasets[phase], loss_function)
+            for phase in ['train', 'valid']:
+                loss  = evaluate_step(datasets[phase])
                 with summary_writer.as_default():
                     tf.summary.scalar(f'[{phase}]: {loss_name}', loss, step=epoch)
             
@@ -59,8 +66,12 @@ def train_model(
             if best_loss >= valid_loss:
                 best_loss = valid_loss
                 best_epoch = epoch
-                print(f'Get the best loss so far at epoch {epoch}! Saving the model.')
-                model.save_weights(f'{saving_path}/AE', save_format='tf')
+                print(f'Get the best loss {best_loss:.5f} at epoch {epoch}! Saving the model.')
+
+                #model.save_weights(saving_path + 'h5')
+                tf.saved_model.save(model, saving_path + '_m')
+
+
             elif overfit_stop and (epoch - best_epoch) >= overfit_stop:
                 print('Reach the overfitting stop.')
                 break
