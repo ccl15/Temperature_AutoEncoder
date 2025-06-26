@@ -67,9 +67,8 @@ def train_model(
                 best_loss = valid_loss
                 best_epoch = epoch
                 print(f'Get the best loss {best_loss:.5f} at epoch {epoch}! Saving the model.')
-
-                #model.save_weights(saving_path + 'h5')
-                tf.saved_model.save(model, saving_path + '_m')
+                model.save_weights(f'{saving_path}/AE', save_format='tf')
+                #tf.saved_model.save(model, saving_path)
 
 
             elif overfit_stop and (epoch - best_epoch) >= overfit_stop:

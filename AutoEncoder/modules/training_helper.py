@@ -1,23 +1,37 @@
 import h5py
+import numpy as np
 import tensorflow as tf
-import random
 
     
-def get_h5py_datasets(data_file, batch_size, shuffle_buffer):
+def get_h5py_datasets(station, batch_size, shuffle_buffer):
+    # read file
+    data_file = '../data/9_input_10min/All_y2023.h5'
     with h5py.File(data_file, 'r') as f:
-        data = f['good/data'][:].astype('float32')
+        if station == 'ALL':
+            all_data = []
+            for sid in f.keys():
+                data1 = f[sid]['data'][:].astype('float32')
+                if data1.shape[0] > 0:
+                    all_data.append(data1)
+            data = np.vstack(all_data)
+        else:
+            data = f[station]['data'][:].astype('float32')
     
-    # Shuffle and counting
-    random.shuffle(data)
-    data = tf.data.Dataset.from_tensor_slices(data)
+    # numbers
+    print(f'data shape {data.shape}')
     n_train = int(len(data)*0.75)
+
+    # Shuffle and counting
+    np.random.shuffle(data)
+    data = tf.data.Dataset.from_tensor_slices(data)
 
     # Split into train/valid
     dataset = {
-        'train': data.take(n_train).shuffle(shuffle_buffer).batch(batch_size).prefetch(1),
-        'valid': data.skip(n_train).shuffle(shuffle_buffer).batch(batch_size).prefetch(1)
+        'train': data.take(n_train).shuffle(shuffle_buffer).batch(batch_size),
+        'valid': data.skip(n_train).shuffle(shuffle_buffer).batch(batch_size)
         }
     return dataset
+
 
 def get_tfr_datasets(data_file, shuffle_buffer, batch_size, input_shp=None):
     # load data

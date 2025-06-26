@@ -10,13 +10,14 @@ QC_*
 
 
 # data file
-/data
+/data*
 operate/model
 *.h5
 *.npy
 *.npz
 *.jpg
 *.png
+*.csv
 
 # auto generated
 Pipfile.lock

@@ -22,16 +22,18 @@ def environment_setting(GPU, GPU_limit):
             [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=GPU_limit)]
         )
 
-def create_model(model_name, model_settng, load_model=None):
-    if load_model:
-        print(f'Load model {load_model}')
-        model = tf.saved_model.load(load_model)
-        return model
+def create_model(model_setting):
+    model_name = model_setting['name']
+    model_class = importlib.import_module(f'Models.autoencoder.{model_name}')
+    
+    model =  model_class.Model(**model_setting)
+    if 'load_path' in model_setting:
+        load_path = model_setting['load_path']
+        model.load_weights(load_path).expect_partial()
+        print(f'Load model {load_path}')
     else:
         print(f'Create new model {model_name}')
-        model_class = importlib.import_module(f'Models.autoencoder.{model_name}')
-        model =  model_class.Model(model_settng['filters'])
-        return model
+    return model
 
 
 def main(exp_path, omit_completed):
@@ -55,7 +57,7 @@ def main(exp_path, omit_completed):
         
         # load data and create model. 
         datasets = get_h5py_datasets(**sub_exp_settings['data'])
-        model = create_model(sub_exp_settings['model_name'], sub_exp_settings['model_setting'])
+        model = create_model(sub_exp_settings['model_setting'],)
         
         # training.
         train_model(
