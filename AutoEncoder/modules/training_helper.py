@@ -3,10 +3,9 @@ import numpy as np
 import tensorflow as tf
 
     
-def get_h5py_datasets(station, batch_size, shuffle_buffer):
+def get_h5py_datasets(file, station, batch_size, shuffle_buffer):
     # read file
-    data_file = '../data/9_input_10min/All_y2023.h5'
-    with h5py.File(data_file, 'r') as f:
+    with h5py.File(file, 'r') as f:
         if station == 'ALL':
             all_data = []
             for sid in f.keys():

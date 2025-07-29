@@ -1,20 +1,29 @@
 experiment_name: AE_10min
-# test of temptature and RH 
+# temptature and RH 
 
 template:
-  sub_exp_name: TR_f32_C0F9S0
-  model_name: AE_3_0
+  sub_exp_name: Pre_M30_f32k3
   model_setting:
-    filters: 12
+    name: AE_3_0
+    filters: 32
+    kernel_size: 3
   data:
-    data_file: ../data/9_input_10min/y4_C0F9S0.h5
-    batch_size: 200
+    file: "../data10/2_input/y2023.h5"
+    station: ALL
+    batch_size: 1000
     shuffle_buffer: 30000
   train_setting:
     evaluate_freq: 5
-    max_epoch: 500
-    loss_name: MSE
-    L_rate: 1e-3
+    max_epoch: 1000
+    loss_name: MAE
+    L_rate: 1e-4
     overfit_stop: 100
 
-#sub_experiments:
+sub_experiments:
+- sub_exp_name: AE30f32_H15
+- sub_exp_name: AE30f32_L15
+
+
+#- sub_exp_name: AE30f32_4P3
+#- sub_exp_name: AE30f32_4P2
+#- sub_exp_name: AE30f32_4P1

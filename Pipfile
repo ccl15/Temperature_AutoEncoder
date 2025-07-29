@@ -4,7 +4,6 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-tensorflow = "==2.18.0"
 tensorflow-addons = "*"
 numpy = "*"
 pandas = "*"
@@ -12,9 +11,11 @@ matplotlib = "*"
 tqdm = "*"
 openpyxl = "*"
 xlrd = "*"
+tensorflow = "==2.13.0"
 
 [dev-packages]
 pyyaml = "*"
+spyder = "*"
 
 [requires]
 python_version = "3.10"
