@@ -3,10 +3,8 @@ from tensorflow.keras import layers
        
 
 class Model(tf.keras.Model):
-    def __init__(self, filters, ks=3, act='leaky', **kwargs):
+    def __init__(self, filters, ks=3, act='relu', **kwargs):
         super().__init__()
-        if act == 'leaky':
-            act = layers.LeakyReLU()
 
         self.ae_model = [
             layers.Conv1D(1*filters  , kernel_size=ks, strides=2, activation=act, padding='same'),

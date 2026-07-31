@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # Read the namelist file line by line
-input_file='experiments/minute_bk.yml'
-output_file='experiments/minute_auto.yml'
-name_file='data/list_re.txt'
+input_file='experiments/transfer_bk.yml'
+output_file='experiments/transfer_auto.yml'
+name_file='verify/Pre_M30_f32k3/namelist.txt'
 
 # loop by name file. skip the first line.
 #tail -n +2 "$name_file" | while IFS= read -r line; do

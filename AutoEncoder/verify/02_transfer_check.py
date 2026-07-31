@@ -1,35 +1,53 @@
 import numpy as np
-import pandas as pd
 import matplotlib.pyplot as plt
 import h5py
 from matplotlib.patches import FancyArrowPatch
 
-def get_sid_list(exp):
-    namelist = f'{exp}/namelist.txt'
-    with open(namelist, 'r') as f:
-        lines = f.readlines()
-        sids = [line.split()[0] for line in lines]
-    return sids
 
-def FN_Reveral(file):
-    print(file)
-    FN_rate = []
-    Reversal_rate = []
-    with h5py.File(file, 'r') as f:
-        for sid in sids:
-            Pmae = f[sid]['PassMAE'][:]
-            Wmae = f[sid]['WarmMAE'][:]
-            FNrate = sum(Pmae>th)/len(Pmae)*100
-            Rrate = sum(Wmae<=th)/len(Wmae)*100 if len(Wmae)>0 else 110
-            if FNrate >= 5:
-                print(f'{sid} FN>5:{FNrate:.2f}, n:{len(Pmae)}')
-            if Rrate <= 40:
-                print(f'{sid} R<40:{Rrate:.2f}, n:{len(Wmae)}')
+def FN_Reveral(file1, file2, th=0.1):
+    FN1 = []
+    FN2 = []
+    sids = []
+    with h5py.File(file1, 'r') as f1:
+        with h5py.File(file2, 'r') as f2:
+            for sid in f1.keys():
+                if sid in f2.keys():
+                    Pmae1 = f1[sid]['PassMAE'][:]
+                    Pmae2 = f2[sid]['PassMAE'][:]
 
-            FN_rate.append(FNrate)
-            Reversal_rate.append(Rrate)
-    return FN_rate, Reversal_rate
+                    if sid not in ['46755', 'CAAH6','CAW01']:
+                        FN1.append(sum(Pmae1>th))
+                        FN2.append(sum(Pmae2>th))
+                        sids.append(sid)
+                    else:
+                        print(sid, sum(Pmae1>th), sum(Pmae2>th))
 
+    return FN1, FN2, sids
+
+
+
+#%%
+file1 = 'AE_min/TempAE_y2024.h5'
+file2 = 'AE_min/AE222_f32k3_relu_1em4/Pre_2024.h5'
+FN1, FN2, sids = FN_Reveral(file1, file2, 0.1)
+
+#%%
+plt.figure()
+plt.plot([0,1.5], [0,1.5], alpha=0.5, c='gray', linewidth=1)
+plt.scatter(FN1, FN2, s=10, alpha=0.8)
+
+plt.xlabel("T AE")
+plt.ylabel("T+RH AE")
+
+plt.title("2024 Stational FNR")
+plt.gca().set_aspect('equal')
+#plt.axis([0,1.6,0,0.8])
+
+#plt.savefig('AE_min/2024.png', dpi=200, bbox_inches='tight')
+
+
+#%%
+'''
 def pass_reversal(th):
     # 0: baseline; 1: transfer
     FN_0, Reversal_0 = FN_Reveral(f'{exp}/cases_mae.h5')
@@ -54,14 +72,4 @@ def pass_reversal(th):
     #plt.axis('equal')
     plt.savefig(f'{exp}/Trans_PR{th}_rate.png', dpi=200,)
     #plt.close()
-
-
-#%%
-exp = 'Pre_M30_f32k3'
-
-sids = get_sid_list(exp)
-th = 0.1
-pass_reversal(0.1)
-
-
-
+'''

@@ -2,7 +2,7 @@ import argparse, os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 from pathlib import Path
 from modules.ymal_reader import parse_exp_settings
-from modules.training_helper import get_h5py_datasets
+from modules.data_loader import get_h5py_datasets
 from modules.model_trainer import train_model
 import tensorflow as tf
 import importlib 
@@ -23,12 +23,12 @@ def environment_setting(GPU, GPU_limit):
         )
 
 def create_model(model_setting):
-    model_name = model_setting['name']
+    model_name = model_setting.pop('name')
     model_class = importlib.import_module(f'Models.autoencoder.{model_name}')
     
-    model =  model_class.Model(**model_setting)
+    model =  model_class.Model(model_setting['filters'])
     if 'load_path' in model_setting:
-        load_path = model_setting['load_path']
+        load_path = model_setting.pop('load_path')
         model.load_weights(load_path).expect_partial()
         print(f'Load model {load_path}')
     else:

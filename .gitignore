@@ -12,6 +12,8 @@ QC_*
 # data file
 /data*
 operate/model
+*.txt
+*.log
 *.h5
 *.npy
 *.npz
